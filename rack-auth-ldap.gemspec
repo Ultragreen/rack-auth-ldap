@@ -14,6 +14,14 @@ Gem::Specification.new do |s|
   s.rubyforge_project = 'nowarning'
   s.description = %q{rack-auth-ldap : provide LDAP authentication for Rack middelware}
   s.has_rdoc = true
+  s.add_development_dependency('rspec')
+  s.add_development_dependency('yard')
+  s.add_development_dependency('rdoc')
+  s.add_development_dependency('roodi')
+  s.add_development_dependency('code_statistics')
+  s.add_development_dependency('yard-rspec')
+  s.add_dependency('ruby-ldap')
+  s.add_dependency('rack')
   s.required_ruby_version = '>= 1.9.0'
   s.license       = "BSD"   
   s.files         = `git ls-files`.split($/)

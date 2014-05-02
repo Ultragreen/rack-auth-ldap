@@ -2,19 +2,23 @@ require 'rack'
 require 'ldap'
 require 'rack/auth/abstract/handler'
 require 'rack/auth/abstract/request'
+require 'yaml'
 
 module Rack
   module Auth
 
     class Config
-      def initialize(options = {})
+      def initialize(options = { :file => './ldap.yml'})
         @values = defaults
-        config_options = YAML.load_file(::File.expand_path('ldap.yml', Dir.pwd))[ENV['RACK_ENV']]          
-        config_options.keys.each do |key|
-          config_options[key.to_sym] = config_options.delete(key)
+        target  = (ENV['RACK_ENV'])? ENV['RACK_ENV'] : 'test'
+        config_values = ::YAML.load_file(::File.expand_path(options[:file], Dir.pwd))[target]          
+        debug = ::File.open("/tmp/test.txt",'a+')
+        debug.puts ENV['RACK_ENV']
+        debug.close
+        config_values.keys.each do |key|
+          config_values[key.to_sym] = config_values.delete(key)
         end
-        @values.merge! options
-        @values.merge! config_options
+        @values.merge! config_values
         @values.keys.each do |meth|
           bloc = Proc.new  {@values[meth] } 
             self.class.send :define_method, meth, &bloc  

@@ -1,0 +1,14 @@
+dn: ou=users,dc=test
+objectclass: top
+objectclass: organizationalUnit
+ou: users
+
+dn: uid=testuser,ou=users,dc=test
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: LDAP test user
+sn: TEST
+uid: test
+userPassword: testpassword
