@@ -1,0 +1,7 @@
+= rack-auth-ldap
+
+Rack Middleware LDAP authentication
+
+== Copyright
+
+Copyright (c) 2014 Romain GEORGES. See COPYRIGHT for details.

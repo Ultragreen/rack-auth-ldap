@@ -1,0 +1,15 @@
+production: &ldap_defaults
+  hostname: localhost
+  basedn: ou=groups,dc=domain,dc=tld
+  rootdn: cn=admin,dc=domain,dc=tld
+  passdn: secret
+  auth: true
+  port: 389
+  username_ldap_attribut: uid
+
+
+test:
+  <<: *ldap_defults
+
+development:
+  <<: *ldap_defults
