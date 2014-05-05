@@ -9,6 +9,6 @@ module Rack
   module Auth
     # the current version for Rack::Auth::Ldap => gem rack-auth-ldap
     # used by gemspec
-    LDAP_VERSION = "0.3"
+    LDAP_VERSION = "1.0"
   end
 end
