@@ -32,8 +32,8 @@ YARD::Rake::YardocTask.new do |t|
   t.files   = [ 'lib/**/*.rb', '-', 'doc/**/*','spec/**/*_spec.rb']
   t.options += ['--title', "Gem Documentation"]
   t.options += ['-o', "yardoc"]
-  t.options += ['-r', "doc/manual.rdoc"]
 end
+
 YARD::Config.load_plugin('yard-rspec')
 
 namespace :yardoc do
@@ -52,7 +52,6 @@ end
 
 Rake::RDocTask.new('rdoc') do |d|
   d.rdoc_files.include('doc/**/*','bin/*')
-  d.main = 'doc/manual.rdoc'
   d.title = 'Dorsal : Yard'
   d.options << '--line-numbers' << '--diagram' << '-SHN'
 end

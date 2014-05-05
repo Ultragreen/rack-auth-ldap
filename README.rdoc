@@ -5,3 +5,69 @@ Rack Middleware LDAP authentication
 == Copyright
 
 Copyright (c) 2014 Romain GEORGES. See COPYRIGHT for details.
+Copyright (C) 2007, 2008, 2009, 2010 Christian Neukirchen <purl.org/net/chneukirchen> for Rack Project
+
+== Presentation 
+
+Rack::Auth::Ldap is a basic authentication module with LDAP support 
+Rack::Auth::Ldap is heavily based on Rack:Auth::Basic from the Rack main Project by Christian Neukirchen 
+
+This is an additional module for Rack to authenticate users against an LDAP serveur 
+
+
+== Usage 
+
+=== Initialise
+
+In you config.ru, simply add :
+
+   require 'rubygems'
+   require 'rack'
+   gem 'rack-auth-ldap'
+   require 'rack/auth/ldap'
+
+
+   require File.dirname(__FILE__) + '/your_app'
+
+   use Rack::Auth::Ldap
+   run Sinatra::Application
+
+this configuration activate the Basic Authencation for the entire application 
+
+
+=== Configure
+
+Create an ldap.yml configuration file with :
+
+   production: &ldap_defaults
+     hostname: localhost
+     basedn: ou=groups,dc=domain,dc=tld
+     rootdn: cn=admin,dc=domain,dc=tld
+     passdn: secret
+     auth: true
+     port: 389
+     username_ldap_attribut: uid
+
+
+   test:
+     <<: *ldap_defaults
+
+   development:
+     <<: *ldap_defaults
+
+
+if you want to deactivate root authentication before user binding :
+
+   production: &ldap_defaults
+     hostname: localhost
+     basedn: ou=groups,dc=domain,dc=tld
+     auth: false
+     port: 389
+     username_ldap_attribut: uid
+
+
+   test:
+     <<: *ldap_defaults
+
+   development:
+     <<: *ldap_defaults

@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.email = "romain@ultragreen.net" 
   s.homepage = "http://www.github.com/lecid/rack-auth-ldap"
   s.authors = ["Romain GEORGES"]
-  s.version = Rack::Auth::Ldap::VERSION
+  s.version = Rack::Auth::LDAP_VERSION
   s.date = "2014-04-29"
   s.rubyforge_project = 'nowarning'
   s.description = %q{rack-auth-ldap : provide LDAP authentication for Rack middelware}
