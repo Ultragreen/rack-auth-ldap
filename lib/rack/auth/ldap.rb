@@ -52,7 +52,8 @@ module Rack
           :username_ldap_attribute => 'uid',
           :ldaps => false,
           :starttls => false,
-          :tls_options => nil
+          :tls_options => nil,
+          :debug => false
         }
       end
 
@@ -125,10 +126,10 @@ module Rack
                               :base => @config.basedn,
                               :encryption => enc )
 
-        $stdout.puts "Net::LDAP.new => #{conn.inspect}"
+        $stdout.puts "Net::LDAP.new => #{conn.inspect}" if @config.debug
 
         if @config.auth
-          $stdout.puts "doing auth for #{@config.rootdn.inspect}"
+          $stdout.puts "doing auth for #{@config.rootdn.inspect}" if @config.debug
           conn.auth @config.rootdn, @config.passdn
           # conn.get_operation_result.message has the reson for a failure
           return false unless conn.bind
@@ -137,13 +138,13 @@ module Rack
         filter = Net::LDAP::Filter.eq(@config.username_ldap_attribute,
                                       auth.username)
 
-        $stdout.puts "Net::LDAP::Filter.eq => #{filter.inspect}"
+        $stdout.puts "Net::LDAP::Filter.eq => #{filter.inspect}" if @config.debug
 
         # find the user and rebind as them to test the password
         #return conn.bind_as(:filter => filter, :password => auth.password)
-        $stdout.puts "doing bind_as password.size: #{auth.password.size}..."
+        $stdout.puts "doing bind_as password.size: #{auth.password.size}..." if @config.debug
         ret = conn.bind_as(:filter => filter, :password => auth.password)
-        $stdout.puts "bind_as => #{ret.inspect}"
+        $stdout.puts "bind_as => #{ret.inspect}" if @config.debug
         ret
       end
 
