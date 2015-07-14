@@ -6,7 +6,7 @@ require 'rack/auth/ldap/version'
 Gem::Specification.new do |s|
   s.name = "rack-auth-ldap"
   s.summary = %Q{Rack middleware providing LDAP authentication}
-  s.email = "romain@ultragreen.net" 
+  s.email = "romain@ultragreen.net"
   s.homepage = "http://www.github.com/lecid/rack-auth-ldap"
   s.authors = ["Romain GEORGES"]
   s.version = Rack::Auth::LDAP_VERSION
@@ -20,12 +20,9 @@ Gem::Specification.new do |s|
   s.add_development_dependency('roodi')
   s.add_development_dependency('code_statistics')
   s.add_development_dependency('yard-rspec')
-  s.add_dependency('ruby-ldap')
+  s.add_dependency('net-ldap')
   s.add_dependency('rack')
   s.required_ruby_version = '>= 1.9.0'
-  s.license       = "BSD"   
+  s.license       = "BSD"
   s.files         = `git ls-files`.split($/)
 end
-
-
-
