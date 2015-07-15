@@ -14,7 +14,6 @@ Rack::Auth::Ldap is heavily based on Rack:Auth::Basic from the Rack main Project
 
 This is an additional module for Rack to authenticate users against an LDAP server
 
-
 == Usage
 
 === Initialize
@@ -33,7 +32,6 @@ In you config.ru, simply add :
    run Sinatra::Application
 
 this configuration activate the Basic Authentication for the entire application
-
 
 === Configure
 
