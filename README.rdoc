@@ -7,17 +7,16 @@ Rack Middleware LDAP authentication
 Copyright (c) 2014 Romain GEORGES. See COPYRIGHT for details.
 Copyright (C) 2007, 2008, 2009, 2010 Christian Neukirchen <purl.org/net/chneukirchen> for Rack Project
 
-== Presentation 
+== Presentation
 
-Rack::Auth::Ldap is a basic authentication module with LDAP support 
-Rack::Auth::Ldap is heavily based on Rack:Auth::Basic from the Rack main Project by Christian Neukirchen 
+Rack::Auth::Ldap is a basic authentication module with LDAP support
+Rack::Auth::Ldap is heavily based on Rack:Auth::Basic from the Rack main Project by Christian Neukirchen
 
-This is an additional module for Rack to authenticate users against an LDAP serveur 
+This is an additional module for Rack to authenticate users against an LDAP server
 
+== Usage
 
-== Usage 
-
-=== Initialise
+=== Initialize
 
 In you config.ru, simply add :
 
@@ -32,8 +31,7 @@ In you config.ru, simply add :
    use Rack::Auth::Ldap
    run Sinatra::Application
 
-this configuration activate the Basic Authencation for the entire application 
-
+this configuration activate the Basic Authentication for the entire application
 
 === Configure
 
@@ -71,3 +69,20 @@ if you want to deactivate root authentication before user binding :
 
    development:
      <<: *ldap_defaults
+
+to use ldaps add:
+     simple_tls: true
+
+to use start tls add:
+     start_tls: true
+
+if you need to set openssl options add a "tls_options" hash e.g.:
+     tls_options:
+         ca_path: /my/certificate/dir
+or
+     tls_options:
+         ca_file: /my/certificate/file
+
+to help debug tls you can add:
+     debug: true
+which will send debugging messages to stdout

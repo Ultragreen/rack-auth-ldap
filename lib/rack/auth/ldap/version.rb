@@ -1,14 +1,14 @@
-#!/usr/bin/env ruby                                                                                                                                                                 
-# -*- coding: utf-8 -*-                                                                                                                                                                            
-# Author : Romain GEORGES                                                                                                                                                                        
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+# Author : Romain GEORGES
 
-# the Rack module from Rack Sources 
+# the Rack module from Rack Sources
 module Rack
 
-# the Rack::Auth module from Rack Sources 
+# the Rack::Auth module from Rack Sources
   module Auth
     # the current version for Rack::Auth::Ldap => gem rack-auth-ldap
     # used by gemspec
-    LDAP_VERSION = "1.0"
+    LDAP_VERSION = "1.1"
   end
 end

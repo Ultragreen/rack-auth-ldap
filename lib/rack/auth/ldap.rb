@@ -1,5 +1,5 @@
 require 'rack'
-require 'ldap'
+require 'net/ldap'
 require 'rack/auth/abstract/handler'
 require 'rack/auth/abstract/request'
 require 'yaml'
@@ -10,20 +10,20 @@ module Rack
   # the auth module from Rack Sources
   module Auth
 
-  
-    # class Config provide Yaml config mapping for Rack::Auth::Module 
+
+    # class Config provide Yaml config mapping for Rack::Auth::Module
     # the class map ldap configurations values
     # @note this class is not provide to be used standalone
-    class Config 
+    class Config
 
-      # initializer for Config class 
+      # initializer for Config class
       # @param [Hash<Symbol>] options initialisation options
       # @option options [Symbol] :file The YAML filename (default to ./ldap.yml, the config.ru path)
-      # @return [Config] object himself 
+      # @return [Config] object himself
       def initialize(options = { :file => './ldap.yml'})
         @values = defaults
         target  = (ENV['RACK_ENV'])? ENV['RACK_ENV'] : 'test'
-        config_values = ::YAML.load_file(::File.expand_path(options[:file], Dir.pwd))[target]          
+        config_values = ::YAML.load_file(::File.expand_path(options[:file], Dir.pwd))[target]
         debug = ::File.open("/tmp/test.txt",'a+')
         debug.puts ENV['RACK_ENV']
         debug.close
@@ -32,12 +32,12 @@ module Rack
         end
         @values.merge! config_values
         @values.keys.each do |meth|
-          bloc = Proc.new  {@values[meth] } 
-            self.class.send :define_method, meth, &bloc  
-        end                                
+          bloc = Proc.new  {@values[meth] }
+            self.class.send :define_method, meth, &bloc
+        end
       end
-      
-      private 
+
+      private
       # private method with default configuration values for LDAP
       # @return [Hash<Symbol>] the default values of LDAP configuration
       def defaults
@@ -50,39 +50,43 @@ module Rack
           :port => 389,
           :scope => :subtree,
           :username_ldap_attribute => 'uid',
+          :ldaps => false,
+          :starttls => false,
+          :tls_options => nil,
+          :debug => false
         }
       end
 
 
     end
 
-    # class Ldap, the main authentication component for Rack 
+    # class Ldap, the main authentication component for Rack
     # inherited from the default Rack::Auth::AbstractHandler
-    # @note please do not instantiate, this classe is reserved to Rack 
-    # @example Usage 
+    # @note please do not instantiate, this classe is reserved to Rack
+    # @example Usage
     #   # in a config.ru
     #   gem 'rack-auth-ldap'
     #   require 'rack/auth/ldap'
     #   use Rack::Auth::Ldap
     class Ldap < AbstractHandler
-      
+
       # the config read accessor
       # @attr [Rack::Auth::Config] the read accessor to the LDAP Config object
       attr_reader :config
-      
+
       # initializer for the Ldap Class
-      # @note please don not instantiate without rack config.ru 
+      # @note please don not instantiate without rack config.ru
       # @see Rack::Auth::Ldap
       # @return [Ldap] self object
       # @param [Block,Proc,Lambda] app the rack application
       # @param [hash<Symbol>] config_options the configurable options
-      # @option config_options [Symbol] :file the path to the YAML configuration file  
+      # @option config_options [Symbol] :file the path to the YAML configuration file
       def initialize(app, config_options = {})
         super(app)
         @config = Config.new(config_options)
       end
 
-      # call wrapper to provide authentication if not 
+      # call wrapper to provide authentication if not
       # @param [Hash] env the rack environnment variable
       # @return [Array] the tri-dimensional Array [status,headers,[body]]
       def call(env)
@@ -100,53 +104,57 @@ module Rack
       private
 
       # forge a challange header for HTTP basic auth with the realm attribut
-      # @return [String] the header 
+      # @return [String] the header
       def challenge
         'Basic realm="%s"' % realm
       end
-      
-      # do the LDAP connection => search => bind with the credentials get into request headers 
+
+      # do the LDAP connection => search => bind with the credentials get into request headers
       # @param [Rack::Auth::Ldap::Request] auth a LDAP authenticator object
       # @return [TrueClass,FalseClass] Boolean true/false
-      def valid?(auth)        
-        dn = ''
-        conn = LDAP::Conn.new(@config.hostname, @config.port)
-        conn.set_option( LDAP::LDAP_OPT_PROTOCOL_VERSION, 3 )
-        conn.simple_bind(@config.rootdn,@config.passdn) if @config.auth 
-        filter = "(#{@config.username_ldap_attribute}=#{auth.username})"
-        conn.search(@config.basedn, ldap_scope(@config.scope), filter) do |entry|
-          dn = entry.dn
+      def valid?(auth)
+        # how to connect to the ldap server: ldap, ldaps, ldap + starttls
+        if @config.ldaps
+          enc = { :method => :simple_tls }
+        elsif @config.starttls
+          enc =  { :method => :start_tls }
+          enc[:tls_options] = @config.tls_options if @config.tls_options
+        else
+          enc = nil             # just straight ldap
         end
-        return false if dn.empty?
-        conn.unbind
-        conn = LDAP::Conn.new(@config.hostname, @config.port)
-        conn.set_option( LDAP::LDAP_OPT_PROTOCOL_VERSION, 3 )
-        begin
-          return conn.simple_bind(dn, auth.password)
-        rescue LDAP::ResultError
-          return false
+        conn = Net::LDAP.new( :host => @config.hostname, :port => @config.port,
+                              :base => @config.basedn,
+                              :encryption => enc )
+
+        $stdout.puts "Net::LDAP.new => #{conn.inspect}" if @config.debug
+
+        if @config.auth
+          $stdout.puts "doing auth for #{@config.rootdn.inspect}" if @config.debug
+          conn.auth @config.rootdn, @config.passdn
+          # conn.get_operation_result.message has the reson for a failure
+          return false unless conn.bind
         end
+
+        filter = Net::LDAP::Filter.eq(@config.username_ldap_attribute,
+                                      auth.username)
+
+        $stdout.puts "Net::LDAP::Filter.eq => #{filter.inspect}" if @config.debug
+
+        # find the user and rebind as them to test the password
+        #return conn.bind_as(:filter => filter, :password => auth.password)
+        $stdout.puts "doing bind_as password.size: #{auth.password.size}..." if @config.debug
+        ret = conn.bind_as(:filter => filter, :password => auth.password)
+        $stdout.puts "bind_as => #{ret.inspect}" if @config.debug
+        ret
       end
 
       private
 
-      # helper to map ruby-ldap scope with internal scope symbols
-      # @param [Symbol] _scope a scope in [:subtree,:one]
-      # @return [Fixnum,Integer] the constant value form ruby-ldap 
-      def ldap_scope(_scope)
-        res = {
-          :subtree => ::LDAP::LDAP_SCOPE_SUBTREE,
-          :one => ::LDAP::LDAP_SCOPE_ONELEVEL
-        }
-        return res[_scope]
-      end
-
-
 
       # Request class the LDAP credentials authenticator
-      # @note please do not instantiate manually, used by Rack::Auth:Ldap 
+      # @note please do not instantiate manually, used by Rack::Auth:Ldap
       class Request < Auth::AbstractRequest
-        
+
         # return true if the auth scheme provide is really a basic scheme
         # @return [FalseClass,TrueClass] the result
         def basic?
@@ -158,7 +166,7 @@ module Rack
         def credentials
           @credentials ||= params.unpack("m*").first.split(/:/, 2)
         end
-        
+
         # read accessor on the first credentials, username
         # @return [String] the username
         def username
@@ -176,6 +184,3 @@ module Rack
     end
   end
 end
-
-
-
