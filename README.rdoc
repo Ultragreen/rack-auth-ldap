@@ -33,6 +33,9 @@ In you config.ru, simply add :
 
 this configuration activate the Basic Authentication for the entire application
 
+To use custom configuration file:
+   use RAck::Auth::Ldap, file: '/path/to/my/cconfig.yml'
+
 === Configure
 
 Create an ldap.yml configuration file with :
