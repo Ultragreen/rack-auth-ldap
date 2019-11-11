@@ -10,7 +10,6 @@ module Rack
   # the auth module from Rack Sources
   module Auth
 
-
     # class Config provide Yaml config mapping for Rack::Auth::Module
     # the class map ldap configurations values
     # @note this class is not provide to be used standalone
@@ -23,7 +22,7 @@ module Rack
       def initialize(options = { :file => './ldap.yml'})
         @values = defaults
         target  = (ENV['RACK_ENV'])? ENV['RACK_ENV'] : 'test'
-        config_values = ::YAML.load_file(::File.expand_path(options[:file], Dir.pwd))[target]
+        config_values = load_yaml(::File.expand_path(options[:file], Dir.pwd))[target]
         debug = ::File.open("/tmp/test.txt",'a+')
         debug.puts ENV['RACK_ENV']
         debug.close
@@ -38,6 +37,19 @@ module Rack
       end
 
       private
+
+      def load_yaml(file)
+        if ::File.exist?(file)
+          ::YAML.load ::ERB.new(IO.read(file)).result
+        else
+          raise "Could not load ldap configuration. No such file - #{file}"
+        end
+      rescue ::Psych::SyntaxError => e
+        raise "YAML syntax error occurred while parsing #{file}. " \
+              "Please note that YAML must be consistently indented using spaces. Tabs are not allowed. " \
+              "Error: #{e.message}"
+      end
+
       # private method with default configuration values for LDAP
       # @return [Hash<Symbol>] the default values of LDAP configuration
       def defaults
@@ -56,8 +68,6 @@ module Rack
           :debug => false
         }
       end
-
-
     end
 
     # class Ldap, the main authentication component for Rack
