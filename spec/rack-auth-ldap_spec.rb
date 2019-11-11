@@ -6,11 +6,11 @@ require 'rack/mock'
 describe Rack::Auth::Ldap do
 
    before :all do
-     @ldap_server = Ladle::Server.new({ 
+     @ldap_server = Ladle::Server.new({
      :quiet => true, :port   => 3897,
      :ldif   => "./spec/config/users.ldif",
      :domain => "dc=test",
-     :tmpdir => '/tmp'                                       
+     :tmpdir => '/tmp'
      }).start
    end
 
@@ -53,6 +53,16 @@ describe Rack::Auth::Ldap do
     response.should include 'WWW-Authenticate'
     response.headers['WWW-Authenticate'].should =~ /Basic realm="#{Regexp.escape(realm)}"/
     response.body.should be_empty
+  end
+
+  it 'should render ldap.yaml with erb and use env vars' do
+     allow(ENV).to receive(:[]).with('RACK_ENV')
+     allow(ENV).to receive(:[]).with('HOSTNAME').and_return('localhost.local')
+     allow(ENV).to receive(:[]).with('PORT').and_return('9090')
+
+     app = Rack::Auth::Ldap.new(unprotected_app,{:file => './spec/config/ldap.yml'})
+     expect(app.config.hostname).to eq('localhost.local')
+     expect(app.config.port).to eq(9090)
   end
 
   it 'should challenge correctly when no credentials are specified' do
