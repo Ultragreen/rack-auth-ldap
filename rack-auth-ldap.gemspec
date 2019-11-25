@@ -13,13 +13,13 @@ Gem::Specification.new do |s|
   s.date = "2014-04-29"
   s.rubyforge_project = 'nowarning'
   s.description = %q{rack-auth-ldap : provide LDAP authentication for Rack middelware}
-  s.has_rdoc = true
   s.add_development_dependency('rspec')
   s.add_development_dependency('yard')
   s.add_development_dependency('rdoc')
   s.add_development_dependency('roodi')
   s.add_development_dependency('code_statistics')
   s.add_development_dependency('yard-rspec')
+  s.add_development_dependency('ladle')
   s.add_dependency('net-ldap')
   s.add_dependency('rack')
   s.required_ruby_version = '>= 1.9.0'
