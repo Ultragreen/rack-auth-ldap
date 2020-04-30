@@ -57,3 +57,9 @@ Rake::RDocTask.new('rdoc') do |d|
 end
 
 task :default => [:gem]
+
+task :stage do
+  Rake::Task["clean"].invoke
+  Rake::Task["clobber"].invoke
+  Rake::Task["install"].invoke
+end

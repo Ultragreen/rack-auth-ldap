@@ -13,16 +13,20 @@ Gem::Specification.new do |s|
   s.date = "2014-04-29"
   s.rubyforge_project = 'nowarning'
   s.description = %q{rack-auth-ldap : provide LDAP authentication for Rack middelware}
-  s.add_development_dependency('rspec')
-  s.add_development_dependency('yard')
-  s.add_development_dependency('rdoc')
-  s.add_development_dependency('roodi')
-  s.add_development_dependency('code_statistics')
-  s.add_development_dependency('yard-rspec')
-  s.add_development_dependency('ladle')
-  s.add_dependency('net-ldap')
-  s.add_dependency('rack')
-  s.required_ruby_version = '>= 1.9.0'
-  s.license       = "BSD"
+  s.add_development_dependency 'rspec', '~> 3.9.0'
+  s.add_development_dependency 'yard', '~> 0.9.24'
+  s.add_development_dependency 'rdoc', '~> 6.2.1'
+  s.add_development_dependency 'roodi', '~> 5.0.0'
+  s.add_development_dependency 'code_statistics', '~> 0.2.13'
+  s.add_development_dependency 'yard-rspec', '~> 0.1'
+  s.add_development_dependency 'ladle', '~> 1.0.1'
+  s.add_development_dependency 'rake', '~> 13.0.1'
+
+
+
+
+  s.add_dependency 'net-ldap', '~> 0.16.2'
+  s.add_dependency 'rack', '~> 2.2.2'
+  s.license       = "BSD-2-Clause"
   s.files         = `git ls-files`.split($/)
 end

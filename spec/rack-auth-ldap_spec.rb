@@ -1,3 +1,4 @@
+# coding: utf-8
 require 'ladle'
 require 'rack/auth/ldap'
 require 'rack/lint'
@@ -101,7 +102,7 @@ describe Rack::Auth::Ldap do
       response.should_not include 'WWW-Authenticate'
     end
   end
-  
+
   it 'should takes realm as optional constructor arg' do
     app = Rack::Auth::Basic.new(unprotected_app, realm) { true }
     realm.should == app.realm

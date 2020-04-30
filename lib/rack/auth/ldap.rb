@@ -1,3 +1,4 @@
+# coding: utf-8
 require 'rack'
 require 'net/ldap'
 require 'rack/auth/abstract/handler'
