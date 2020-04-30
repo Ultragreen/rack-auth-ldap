@@ -1,4 +1,8 @@
 # coding: utf-8
+
+#inhibit warning : due to net-ldap warning on Socket.tcp
+$-w = nil
+
 require 'rack'
 require 'net/ldap'
 require 'rack/auth/abstract/handler'

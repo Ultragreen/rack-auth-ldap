@@ -1,6 +1,5 @@
 require 'rubygems'
 require 'rack'
-require 'sinatra'
 gem 'rack-auth-ldap'
 require 'rack/auth/ldap'
 

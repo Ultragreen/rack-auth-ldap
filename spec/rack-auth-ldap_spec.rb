@@ -49,11 +49,11 @@ describe Rack::Auth::Ldap do
   end
 
   def assert_basic_auth_challenge(response)
-    response.client_error?.should be true
-    response.status.should == 401
-    response.should include 'WWW-Authenticate'
-    response.headers['WWW-Authenticate'].should =~ /Basic realm="#{Regexp.escape(realm)}"/
-    response.body.should be_empty
+    expect(response.client_error?).to be true
+    expect(response.status).to eq 401
+    expect(response).to include 'WWW-Authenticate'
+    expect(response.headers['WWW-Authenticate']).to match /Basic realm="#{Regexp.escape(realm)}"/
+    expect(response.body).to be_empty
   end
 
   it 'should render ldap.yaml with erb and use env vars' do
@@ -74,37 +74,37 @@ describe Rack::Auth::Ldap do
 
   it 'should rechallenge if incorrect credentials are specified' do
     request_with_basic_auth 'falseuser', 'password' do |response|
-      response.client_error?.should be true
+      expect(response.client_error?).to be true
       assert_basic_auth_challenge response
     end
   end
 
   it 'should return application output if correct credentials are specified' do
     request_with_basic_auth 'testuser', 'testpassword' do |response|
-      response.client_error?.should be false
-      response.status.should == 200
-      response.body.to_s.should eq 'Hi testuser'
+      expect(response.client_error?).to be false
+      expect(response.status).to eq 200
+      expect(response.body.to_s).to eq 'Hi testuser'
     end
   end
 
   it 'should return 400 Bad Request if different auth scheme used' do
     request 'HTTP_AUTHORIZATION' => 'Digest params' do |response|
-      response.client_error?.should be true
-      response.status.should == 400
-      response.should_not include 'WWW-Authenticate'
+      expect(response.client_error?).to be true
+      expect(response.status).to eq 400
+      expect(response).not_to include 'WWW-Authenticate'
     end
   end
 
   it 'should return 400 Bad Request for a malformed authorization header' do
     request 'HTTP_AUTHORIZATION' => '' do |response|
-      response.client_error?.should be true
-      response.status.should == 400
-      response.should_not include 'WWW-Authenticate'
+      expect(response.client_error?).to be true
+      expect(response.status).to eq 400
+      expect(response).not_to include 'WWW-Authenticate'
     end
   end
 
   it 'should takes realm as optional constructor arg' do
     app = Rack::Auth::Basic.new(unprotected_app, realm) { true }
-    realm.should == app.realm
+    expect(realm).to eq app.realm
   end
 end

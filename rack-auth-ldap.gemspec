@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.authors = ["Romain GEORGES"]
   s.version = Rack::Auth::LDAP_VERSION
   s.date = "2014-04-29"
-  s.rubyforge_project = 'nowarning'
+
   s.description = %q{rack-auth-ldap : provide LDAP authentication for Rack middelware}
   s.add_development_dependency 'rspec', '~> 3.9.0'
   s.add_development_dependency 'yard', '~> 0.9.24'
