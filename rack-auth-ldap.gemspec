@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.homepage = "http://www.github.com/lecid/rack-auth-ldap"
   s.authors = ["Romain GEORGES"]
   s.version = Rack::Auth::LDAP_VERSION
-  s.date = "2014-04-29"
+
 
   s.description = %q{rack-auth-ldap : provide LDAP authentication for Rack middelware}
   s.add_development_dependency 'rspec', '~> 3.9.0'
