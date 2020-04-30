@@ -26,6 +26,7 @@ module Rack
       # @return [Config] object himself
       def initialize(options = { :file => './ldap.yml'})
         @values = defaults
+        options.merge!(:file => './ldap.yml') { |key,oldval,newval| oldval }
         target  = (ENV['RACK_ENV'])? ENV['RACK_ENV'] : 'test'
         config_values = load_yaml(::File.expand_path(options[:file], Dir.pwd))[target]
         debug = ::File.open("/tmp/test.txt",'a+')
