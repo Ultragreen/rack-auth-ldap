@@ -74,10 +74,10 @@ if you want to deactivate root authentication before user binding :
      <<: *ldap_defaults
 
 to use ldaps add:
-     simple_tls: true
+     ldaps: true
 
 to use start tls add:
-     start_tls: true
+     starttls: true
 
 if you need to set openssl options add a "tls_options" hash e.g.:
      tls_options:
