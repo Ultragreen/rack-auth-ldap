@@ -1,6 +1,4 @@
-# coding: utf-8
-
-#inhibit warning : due to net-ldap warning on Socket.tcp
+# inhibit warning : due to net-ldap warning on Socket.tcp
 $-w = nil
 
 require 'rack'
@@ -11,67 +9,62 @@ require 'yaml'
 
 # the rack module from Rack Sources
 module Rack
-
   # the auth module from Rack Sources
   module Auth
-
     # class Config provide Yaml config mapping for Rack::Auth::Module
     # the class map ldap configurations values
     # @note this class is not provide to be used standalone
     class Config
-
       # initializer for Config class
       # @param [Hash<Symbol>] options initialisation options
       # @option options [Symbol] :file The YAML filename (default to ./ldap.yml, the config.ru path)
       # @return [Config] object himself
-      def initialize(options = { :file => './ldap.yml'})
+      def initialize(options = { file: './ldap.yml' })
         @values = defaults
-        options.merge!(:file => './ldap.yml') { |key,oldval,newval| oldval }
-        target  = (ENV['RACK_ENV'])? ENV['RACK_ENV'] : 'test'
+        options.merge!(file: './ldap.yml') { |_key, oldval, _newval| oldval }
+        target = ENV['RACK_ENV'] || 'test'
         config_values = load_yaml(::File.expand_path(options[:file], Dir.pwd))[target]
-        debug = ::File.open("/tmp/test.txt",'a+')
-        debug.puts ENV['RACK_ENV']
+        debug = ::File.open('/tmp/test.txt', 'a+')
+        debug.puts ENV.fetch('RACK_ENV', nil)
         debug.close
         config_values.keys.each do |key|
           config_values[key.to_sym] = config_values.delete(key)
         end
         @values.merge! config_values
         @values.keys.each do |meth|
-          bloc = Proc.new  {@values[meth] }
-            self.class.send :define_method, meth, &bloc
+          bloc = proc { @values[meth] }
+          self.class.send :define_method, meth, &bloc
         end
       end
 
       private
 
       def load_yaml(file)
-        if ::File.exist?(file)
-          ::YAML.load ::ERB.new(IO.read(file)).result
-        else
-          raise "Could not load ldap configuration. No such file - #{file}"
-        end
+        raise "Could not load ldap configuration. No such file - #{file}" unless ::File.exist?(file)
+
+        ::YAML.load ::ERB.new(IO.read(file)).result
       rescue ::Psych::SyntaxError => e
         raise "YAML syntax error occurred while parsing #{file}. " \
-              "Please note that YAML must be consistently indented using spaces. Tabs are not allowed. " \
+              'Please note that YAML must be consistently indented using spaces. Tabs are not allowed. ' \
               "Error: #{e.message}"
       end
 
       # private method with default configuration values for LDAP
       # @return [Hash<Symbol>] the default values of LDAP configuration
       def defaults
-        return {
-          :hostname => 'localhost',
-          :basedn => 'dc=domain,dc=tld',
-          :rootdn => '',
-          :passdn => '',
-          :auth => false,
-          :port => 389,
-          :scope => :subtree,
-          :username_ldap_attribute => 'uid',
-          :ldaps => false,
-          :starttls => false,
-          :tls_options => nil,
-          :debug => false
+        {
+          hostname: 'localhost',
+          basedn: 'dc=domain,dc=tld',
+          rootdn: '',
+          passdn: '',
+          auth: false,
+          port: 389,
+          scope: :subtree,
+          username_ldap_attribute: 'uid',
+          ldaps: false,
+          starttls: false,
+          tls_options: nil,
+          debug: false
         }
       end
     end
@@ -85,7 +78,6 @@ module Rack
     #   require 'rack/auth/ldap'
     #   use Rack::Auth::Ldap
     class Ldap < AbstractHandler
-
       # the config read accessor
       # @attr [Rack::Auth::Config] the read accessor to the LDAP Config object
       attr_reader :config
@@ -109,13 +101,13 @@ module Rack
         auth = Ldap::Request.new(env)
         return unauthorized unless auth.provided?
         return bad_request unless auth.basic?
+
         if valid?(auth)
           env['REMOTE_USER'] = auth.username
           return @app.call(env)
         end
         unauthorized
       end
-
 
       private
 
@@ -131,16 +123,16 @@ module Rack
       def valid?(auth)
         # how to connect to the ldap server: ldap, ldaps, ldap + starttls
         if @config.ldaps
-          enc = { :method => :simple_tls }
+          enc = { method: :simple_tls }
         elsif @config.starttls
-          enc =  { :method => :start_tls }
+          enc = { method: :start_tls }
           enc[:tls_options] = @config.tls_options if @config.tls_options
         else
-          enc = nil             # just straight ldap
+          enc = nil # just straight ldap
         end
-        conn = Net::LDAP.new( :host => @config.hostname, :port => @config.port,
-                              :base => @config.basedn,
-                              :encryption => enc )
+        conn = Net::LDAP.new(host: @config.hostname, port: @config.port,
+                             base: @config.basedn,
+                             encryption: enc)
 
         $stdout.puts "Net::LDAP.new => #{conn.inspect}" if @config.debug
 
@@ -157,30 +149,26 @@ module Rack
         $stdout.puts "Net::LDAP::Filter.eq => #{filter.inspect}" if @config.debug
 
         # find the user and rebind as them to test the password
-        #return conn.bind_as(:filter => filter, :password => auth.password)
+        # return conn.bind_as(:filter => filter, :password => auth.password)
         $stdout.puts "doing bind_as password.size: #{auth.password.size}..." if @config.debug
-        ret = conn.bind_as(:filter => filter, :password => auth.password)
+        ret = conn.bind_as(filter: filter, password: auth.password)
         $stdout.puts "bind_as => #{ret.inspect}" if @config.debug
         ret
       end
 
-      private
-
-
       # Request class the LDAP credentials authenticator
       # @note please do not instantiate manually, used by Rack::Auth:Ldap
       class Request < Auth::AbstractRequest
-
         # return true if the auth scheme provide is really a basic scheme
         # @return [FalseClass,TrueClass] the result
         def basic?
-          !parts.first.nil? && "basic" == scheme
+          !parts.first.nil? && 'basic' == scheme
         end
 
         # return an array of the two credentials [username,password]
         # @return [Array] the couple [username,password]
         def credentials
-          @credentials ||= params.unpack("m*").first.split(/:/, 2)
+          @credentials ||= params.unpack1('m*').split(':', 2)
         end
 
         # read accessor on the first credentials, username
@@ -194,9 +182,7 @@ module Rack
         def password
           credentials.last
         end
-
       end
-
     end
   end
 end
