@@ -1,0 +1,23 @@
+name: Ruby
+
+on: [push,pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 3.2.3
+    - name: Getting dependencies (Bundle)
+      run: |
+        gem install bundler -v 2.5.9
+        bundle install
+    - name: Running test Rspec
+      run: |
+        bundle exec rake
+    - name: Running CVE security audit 
+      run: |
+        bundle exec rake audit

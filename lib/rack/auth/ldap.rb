@@ -42,7 +42,7 @@ module Rack
       def load_yaml(file)
         raise "Could not load ldap configuration. No such file - #{file}" unless ::File.exist?(file)
 
-        ::YAML.load ::ERB.new(IO.read(file)).result
+        ::YAML.load ::ERB.new(IO.read(file)).result, aliases: true
       rescue ::Psych::SyntaxError => e
         raise "YAML syntax error occurred while parsing #{file}. " \
               'Please note that YAML must be consistently indented using spaces. Tabs are not allowed. ' \
