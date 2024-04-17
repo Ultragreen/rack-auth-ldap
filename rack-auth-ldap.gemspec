@@ -1,6 +1,5 @@
 lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'rack/auth/ldap/version'
 
 Gem::Specification.new do |s|
   s.name = 'rack-auth-ldap'
@@ -8,7 +7,7 @@ Gem::Specification.new do |s|
   s.email = 'romain@ultragreen.net'
   s.homepage = 'http://www.github.com/lecid/rack-auth-ldap'
   s.authors = ['Romain GEORGES']
-  s.version = Rack::Auth::LDAP_VERSION
+  s.version = `cat VERSION`.chomp
 
   s.description = 'rack-auth-ldap : provide LDAP authentication for Rack middelware'
   s.add_development_dependency 'bundle-audit', '~> 0.1.0'
